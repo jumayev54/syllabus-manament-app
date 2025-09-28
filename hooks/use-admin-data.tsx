@@ -18,18 +18,18 @@ export function useAdminData() {
     try {
       // Mock data - replace with actual API calls
       setCampuses([
-        { id: '1', name: 'Main Campus', location: 'Downtown', address: '123 University Ave', isActive: true },
-        { id: '2', name: 'North Campus', location: 'Northside', address: '456 North Ave', isActive: true },
+        { id: '1', name: 'Asosiy Kampus', location: 'Shahar markazi', address: 'Universitet prospekti 123', isActive: true },
+        { id: '2', name: 'Shimoliy Kampus', location: 'Shimol tomoni', address: 'Shimoliy prospekt, 456', isActive: true },
       ]);
 
       setFaculties([
-        { id: '1', name: 'Faculty of Engineering', description: 'Engineering and Technology', campusId: '1', isActive: true, createdAt: new Date().toISOString() },
-        { id: '2', name: 'Faculty of Business', description: 'Business and Management', campusId: '1', isActive: true, createdAt: new Date().toISOString() },
+        { id: '1', name: 'Axborot texnologiyalar fakulteti', description: 'Axborot texnologiyalari', campusId: '1', isActive: true, createdAt: new Date().toISOString() },
+        { id: '2', name: 'Iqtisod fakulteti', description: 'Iqtisod  va Moliya', campusId: '1', isActive: true, createdAt: new Date().toISOString() },
       ]);
 
       setDepartments([
-        { id: '1', name: 'Computer Science', description: 'CS Department', facultyId: '1', campusId: '1', isActive: true, createdAt: new Date().toISOString() },
-        { id: '2', name: 'Electrical Engineering', description: 'EE Department', facultyId: '1', campusId: '1', isActive: true, createdAt: new Date().toISOString() },
+        { id: '1', name: 'Kompyuter ilmlari', description: 'KI kafedrasi', facultyId: '1', campusId: '1', isActive: true, createdAt: new Date().toISOString() },
+        { id: '2', name: 'Amaliy matematika', description: 'AM kafedrasi', facultyId: '1', campusId: '1', isActive: true, createdAt: new Date().toISOString() },
       ]);
 
       // Load existing users from localStorage or set empty array

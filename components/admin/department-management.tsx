@@ -56,49 +56,49 @@ export function DepartmentManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold">Department Management</h3>
-          <p className="text-muted-foreground">Manage academic departments and their leadership</p>
+          <h3 className="text-lg font-semibold">Kafedra boshqaruvi</h3>
+          <p className="text-muted-foreground">Ilmiy bo'limlarni va ularning rahbariyatini boshqaring</p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Department
+              Kafedra qo'shish
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Department</DialogTitle>
+              <DialogTitle>Yangi Kafedra qo'shish</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="name">Department Name</Label>
+                <Label htmlFor="name">Kafedra nomi</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g., Computer Science"
+                  placeholder="masalan, kompyuter ilmlari"
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">Tavsif</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Brief description of the department"
+                  placeholder="Kafedraning qisqacha tavsifi"
                 />
               </div>
               <div>
-                <Label htmlFor="faculty">Faculty</Label>
+                <Label htmlFor="faculty">Fakultet</Label>
                 <Select
                   value={formData.facultyId}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, facultyId: value }))}
                   required
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select faculty" />
+                    <SelectValue placeholder="Fakultet tanlang" />
                   </SelectTrigger>
                   <SelectContent>
                     {faculties.map((faculty) => (
@@ -111,9 +111,9 @@ export function DepartmentManagement() {
               </div>
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-                  Cancel
+                Bekor qilish
                 </Button>
-                <Button type="submit">Add Department</Button>
+                <Button type="submit">Kafedra qo'shish</Button>
               </div>
             </form>
           </DialogContent>
@@ -133,10 +133,10 @@ export function DepartmentManagement() {
                   <CardDescription>{department.description}</CardDescription>
                   <div className="mt-2 space-y-1">
                     <p className="text-sm text-muted-foreground">
-                      Faculty: {getFacultyName(department.facultyId)}
+                      Fakultet: {getFacultyName(department.facultyId)}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Department Head: {getDepartmentHeadName(department.id)}
+                      Kafedra mudiri: {getDepartmentHeadName(department.id)}
                     </p>
                   </div>
                 </div>

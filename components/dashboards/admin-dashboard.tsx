@@ -25,13 +25,13 @@ export function AdminDashboard() {
 
   return (
     <DashboardLayout
-      title="Admin Dashboard"
-      subtitle="System Administration and Management"
+      title="Administrator boshqaruv paneli"
+      subtitle="Tizim boshqaruvi"
       tabs={[
-        { id: "faculties", label: "Faculties", icon: Building2 },
-        { id: "departments", label: "Departments", icon: GraduationCap },
-        { id: "users", label: "Users & Roles", icon: Users },
-        { id: "settings", label: "Settings", icon: Settings },
+        { id: "faculties", label: "Fakultetlar", icon: Building2 },
+        { id: "departments", label: "Kafedralar", icon: GraduationCap },
+        { id: "users", label: "Foydalanuvchilar", icon: Users },
+        { id: "settings", label: "Sozlamalar", icon: Settings },
       ]}
       activeTab={activeTab}
       onTabChange={setActiveTab}

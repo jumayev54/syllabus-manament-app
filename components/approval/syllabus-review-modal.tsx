@@ -98,9 +98,11 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5" />
-            <span>Review Syllabus</span>
+            <span>Syllabusni ko'rib chiqish</span>
           </DialogTitle>
-          <DialogDescription>Review and approve or request changes to this syllabus submission</DialogDescription>
+          <DialogDescription>
+            Quyida kurs syllabusi tafsilotlari va ko'rib chiqish harakati mavjud.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -119,11 +121,11 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
                     </span>
                     <span className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
-                      Submitted {syllabusData.submittedDate}
+                      Taqdim etilgan {syllabusData.submittedDate}
                     </span>
                     <span className="flex items-center">
                       <Clock className="h-4 w-4 mr-1" />
-                      Version {syllabusData.version}
+                      Versiya {syllabusData.version}
                     </span>
                   </CardDescription>
                 </div>
@@ -136,7 +138,9 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
           <div className="grid gap-6 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Course Description</CardTitle>
+                <CardTitle className="text-base">
+                Kurs tavsifi
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">{syllabusData.description}</p>
@@ -145,7 +149,9 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Learning Outcomes</CardTitle>
+                <CardTitle className="text-base">
+                O'quv natijalari
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
@@ -164,7 +170,9 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Assignments & Grading</CardTitle>
+              <CardTitle className="text-base">
+              Baholash mezonlari va topshiriqlar
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -173,7 +181,7 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
                     <span>{assignment.title}</span>
                     <div className="flex items-center space-x-2">
                       <Badge variant="outline">{assignment.weight}%</Badge>
-                      <span className="text-muted-foreground">Due: {assignment.dueDate}</span>
+                      <span className="text-muted-foreground">Muddati: {assignment.dueDate}</span>
                     </div>
                   </div>
                 ))}
@@ -184,7 +192,9 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
           {/* Workflow History */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Workflow History</CardTitle>
+              <CardTitle className="text-base">
+              Ish jarayoni tarixi
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -213,12 +223,18 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
           {/* Review Actions */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Review Decision</CardTitle>
-              <CardDescription>Provide your review decision and comments</CardDescription>
+              <CardTitle className="text-base">
+              Qarorni ko'rib chiqish
+              </CardTitle>
+              <CardDescription>
+              Iltimos, qaroringizni quyidagi tugmalar yordamida tanlang va kerak bo'lsa izohlar qo'shing.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="comments">Comments</Label>
+                <Label htmlFor="comments">
+                  Izohlar (majburiy emas, lekin tavsiya etiladi)
+                </Label>
                 <Textarea
                   id="comments"
                   placeholder="Provide feedback, suggestions, or reasons for your decision..."
@@ -235,7 +251,9 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
                   className="flex items-center space-x-2"
                 >
                   <CheckCircle className="h-4 w-4" />
-                  <span>Approve</span>
+                  <span>
+                  Tasdiqlash
+                  </span>
                 </Button>
                 <Button
                   variant="outline"
@@ -243,7 +261,9 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
                   className="flex items-center space-x-2"
                 >
                   <MessageSquare className="h-4 w-4" />
-                  <span>Request Revision</span>
+                  <span>
+                  Tekshirishni talab qilish
+                  </span>
                 </Button>
                 <Button
                   variant="destructive"
@@ -251,10 +271,12 @@ export function SyllabusReviewModal({ syllabusId, reviewerRole, onClose, onActio
                   className="flex items-center space-x-2"
                 >
                   <XCircle className="h-4 w-4" />
-                  <span>Reject</span>
+                  <span>
+                  Rad etish
+                  </span>
                 </Button>
                 <Button variant="ghost" onClick={onClose}>
-                  Cancel
+                  Bekor qilish
                 </Button>
               </div>
             </CardContent>

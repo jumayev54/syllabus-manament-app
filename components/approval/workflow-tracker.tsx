@@ -80,8 +80,10 @@ export function WorkflowTracker({ steps, currentStep }: WorkflowTrackerProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Approval Workflow</CardTitle>
-        <CardDescription>Track the approval process for this syllabus</CardDescription>
+        <CardTitle className="text-base">Tasdiqlash ish jarayoni</CardTitle>
+        <CardDescription>
+          Hujjat qaysi bosqichda ekanligini va kim tomonidan ko‘rib chiqilayotganini kuzatib boring.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">

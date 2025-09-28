@@ -46,44 +46,44 @@ export function FacultyManagement() {
     return campuses.find(c => c.id === campusId)?.name || 'Unknown';
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Yuklanmoqda...</div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold">Faculty Management</h3>
-          <p className="text-muted-foreground">Manage university faculties and their assignments</p>
+          <h3 className="text-lg font-semibold">Fakultet Boshqaruvi</h3>
+          <p className="text-muted-foreground">Universitet fakultetlari va ularning topshiriqlarini boshqarish</p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Faculty
+             Fakultet Qo'shish
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Faculty</DialogTitle>
+              <DialogTitle>Yangi Fakultet Qo'shish</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="name">Faculty Name</Label>
+                <Label htmlFor="name">Fakultet Nomi</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="e.g., Faculty of Engineering"
+                  placeholder="masalan, axborot texnologiyalar fakulteti"
                   required
                 />
               </div>
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">Tavsif</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Brief description of the faculty"
+                  placeholder="Fakultetning qisqacha tavsifi"
                 />
               </div>
               <div>
