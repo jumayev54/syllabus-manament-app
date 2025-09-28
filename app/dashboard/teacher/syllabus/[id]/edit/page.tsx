@@ -5,7 +5,23 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function SyllabusEditPage({ params }: { params: { id: string } }) {
+// Required for static export
+export async function generateStaticParams() {
+  // Since this is a dynamic page that depends on user data,
+  // return an empty array - pages will be generated on demand
+  return [];
+}
+
+// Make the page dynamic
+export const dynamic = 'force-dynamic';
+
+interface EditSyllabusPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function EditSyllabusPage({ params }: EditSyllabusPageProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
