@@ -5,13 +5,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-// Required for static export
-export async function generateStaticParams() {
-  // Since this is a dynamic page that depends on user data,
-  // return an empty array - pages will be generated on demand
-  return [{ id: "1" }, { id: "2" }, { id: "3" }];
-}
-
 // Make the page dynamic
 export const dynamic = "force-dynamic";
 
