@@ -13,13 +13,11 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { CalendarIcon, Download, FileText, Mail, Clock, CheckCircle } from "lucide-react"
+import type { DateRange } from "react-day-picker"
 
 export function ReportsGenerator() {
   const [reportType, setReportType] = useState("")
-  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
-    from: undefined,
-    to: undefined,
-  })
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([])
   const [reportFormat, setReportFormat] = useState("pdf")
   const [includeCharts, setIncludeCharts] = useState(true)
@@ -38,19 +36,31 @@ export function ReportsGenerator() {
       name: "Approval Workflow Report",
       description: "Analyze approval times and bottlenecks",
     },
-    { id: "user-activity", name: "User Activity Report", description: "Monitor user engagement and system usage" },
+    { 
+      id: "user-activity", 
+      name: "User Activity Report", 
+      description: "Monitor user engagement and system usage" 
+    },
     {
       id: "department-performance",
       name: "Department Performance Report",
       description: "Compare department metrics and KPIs",
     },
-    { id: "compliance", name: "Compliance Report", description: "Ensure policy adherence and standards" },
-    { id: "custom", name: "Custom Report", description: "Build a custom report with selected metrics" },
+    { 
+      id: "compliance", 
+      name: "Compliance Report", 
+      description: "Ensure policy adherence and standards" 
+    },
+    { 
+      id: "custom", 
+      name: "Custom Report", 
+      description: "Build a custom report with selected metrics" 
+    },
   ]
 
   const departments = [
     "Computer Science",
-    "Mathematics",
+    "Mathematics", 
     "Physics",
     "Chemistry",
     "Biology",
@@ -155,9 +165,12 @@ export function ReportsGenerator() {
                   <Label>Date Range</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full justify-start text-left font-normal bg-transparent">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start text-left font-normal"
+                      >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateRange.from ? (
+                        {dateRange?.from ? (
                           dateRange.to ? (
                             <>
                               {format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}
@@ -174,7 +187,7 @@ export function ReportsGenerator() {
                       <Calendar
                         initialFocus
                         mode="range"
-                        defaultMonth={dateRange.from}
+                        defaultMonth={dateRange?.from}
                         selected={dateRange}
                         onSelect={setDateRange}
                         numberOfMonths={2}
@@ -207,9 +220,15 @@ export function ReportsGenerator() {
                       <Checkbox
                         id={department}
                         checked={selectedDepartments.includes(department)}
-                        onCheckedChange={() => handleDepartmentToggle(department)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            handleDepartmentToggle(department)
+                          } else {
+                            handleDepartmentToggle(department)
+                          }
+                        }}
                       />
-                      <Label htmlFor={department} className="text-sm">
+                      <Label htmlFor={department} className="text-sm font-normal cursor-pointer">
                         {department}
                       </Label>
                     </div>
@@ -239,8 +258,14 @@ export function ReportsGenerator() {
               </div>
 
               <div className="flex items-center space-x-2">
-                <Checkbox id="includeCharts" checked={includeCharts} onCheckedChange={setIncludeCharts} />
-                <Label htmlFor="includeCharts">Include charts and visualizations</Label>
+                <Checkbox 
+                  id="includeCharts" 
+                  checked={includeCharts} 
+                  onCheckedChange={(checked) => setIncludeCharts(!!checked)}
+                />
+                <Label htmlFor="includeCharts" className="cursor-pointer">
+                  Include charts and visualizations
+                </Label>
               </div>
 
               <div className="flex space-x-2">
@@ -273,7 +298,7 @@ export function ReportsGenerator() {
                   rows={3}
                 />
               </div>
-              <Button variant="outline" className="w-full bg-transparent">
+              <Button variant="outline" className="w-full">
                 <Mail className="mr-2 h-4 w-4" />
                 Send Test Email
               </Button>
@@ -294,7 +319,9 @@ export function ReportsGenerator() {
                   <div key={report.id} className="p-3 border rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-medium text-sm">{report.name}</h4>
-                      <Badge variant={report.status === "active" ? "default" : "secondary"}>{report.status}</Badge>
+                      <Badge variant={report.status === "active" ? "default" : "secondary"}>
+                        {report.status}
+                      </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mb-2">
                       {reportTypes.find((t) => t.id === report.type)?.description}
@@ -324,15 +351,15 @@ export function ReportsGenerator() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start bg-transparent">
+                <Button variant="outline" className="w-full justify-start">
                   <FileText className="mr-2 h-4 w-4" />
                   Current Week Summary
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-transparent">
+                <Button variant="outline" className="w-full justify-start">
                   <CheckCircle className="mr-2 h-4 w-4" />
                   Pending Approvals
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-transparent">
+                <Button variant="outline" className="w-full justify-start">
                   <Clock className="mr-2 h-4 w-4" />
                   Overdue Submissions
                 </Button>
