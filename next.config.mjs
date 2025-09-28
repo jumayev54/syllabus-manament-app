@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export",
+  output: "standalone",
   trailingSlash: true, // Critical for GitHub Pages
   images: {
     unoptimized: true,
