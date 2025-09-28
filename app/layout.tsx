@@ -1,18 +1,16 @@
 import type React from "react";
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import { Inter } from "next/font/google";
 import { AuthProvider } from "@/hooks/use-auth";
-import { WorkflowProvider } from "@/hooks/use-workflow";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
-import { Suspense } from "react";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Universitet O'quv Dasturi Boshqaruv Tizimi", // Translated to Uzbek
-  description:
-    "Universitetlar uchun zamonaviy o'quv dasturi boshqaruv platformasi", // Translated to Uzbek
+  title: "Universitet O'quv Dasturi Boshqaruv Tizimi",
+  description: "Universitetning o'quv dasturlarini boshqarish uchun kompleks tizim",
 };
 
 export default function RootLayout({
@@ -22,9 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="uz" suppressHydrationWarning>
-      <body
-        className={`font-sans transition-theme ${GeistSans.variable} ${GeistMono.variable}`}
-      >
+      <body className={inter.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -32,10 +28,8 @@ export default function RootLayout({
           disableTransitionOnChange={false}
         >
           <AuthProvider>
-            <WorkflowProvider>
-              <Suspense>{children}</Suspense>
-              <Toaster />
-            </WorkflowProvider>
+            {children}
+            <Toaster />
           </AuthProvider>
         </ThemeProvider>
       </body>

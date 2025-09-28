@@ -1,228 +1,407 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { useAuth } from "@/hooks/use-auth"
-import { DashboardLayout } from "@/components/layout/dashboard-layout"
-import { SyllabusEditor } from "@/components/syllabus/syllabus-editor"
-import { SyllabusTemplates } from "@/components/syllabus/syllabus-templates"
-import { FileText, Clock, CheckCircle, AlertCircle, Plus, Upload, Edit } from "lucide-react"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { canAccessResource } from "@/lib/auth-utils";
+import { BookOpen, FileText, Plus, Clock, Building2, AlertCircle, Eye, Edit } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+
+interface Syllabus {
+  id: string;
+  title: string;
+  courseCode: string;
+  credits: number;
+  status: 'draft' | 'pending' | 'approved' | 'rejected';
+  teacherId: string;
+  updatedAt: string;
+}
+
+interface Faculty {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+interface Department {
+  id: string;
+  name: string;
+  description?: string;
+  departmentHead?: {
+    name: string;
+  };
+  facultyCount?: number;
+}
 
 export function TeacherDashboard() {
-  const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState("overview")
-  const [editingSyllabus, setEditingSyllabus] = useState<string | null>(null)
+  const { user } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("syllabi");
+  const [syllabi, setSyllabi] = useState<Syllabus[]>([]);
+  const [facultyInfo, setFacultyInfo] = useState<Faculty | null>(null);
+  const [departmentInfo, setDepartmentInfo] = useState<Department | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const syllabi = [
-    {
-      id: "1",
-      course: "CS 101 - Introduction to Programming",
-      status: "approved",
-      lastModified: "2024-01-15",
-      version: "1.2",
-    },
-    { id: "2", course: "CS 201 - Data Structures", status: "pending", lastModified: "2024-01-20", version: "1.0" },
-    { id: "3", course: "CS 301 - Algorithms", status: "revision_needed", lastModified: "2024-01-18", version: "1.1" },
-    { id: "4", course: "CS 401 - Software Engineering", status: "draft", lastModified: "2024-01-22", version: "0.1" },
-  ]
+  useEffect(() => {
+    if (user) {
+      fetchTeacherData();
+    }
+  }, [user]);
 
-  const stats = [
-    { title: "Total Syllabi", value: "4", icon: FileText, change: "+1" },
-    { title: "Approved", value: "1", icon: CheckCircle, change: "0" },
-    { title: "Pending Review", value: "1", icon: Clock, change: "+1" },
-    { title: "Need Revision", value: "1", icon: AlertCircle, change: "0" },
-  ]
+  const fetchTeacherData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Load existing syllabi from localStorage and mock data
+      const savedSyllabi = JSON.parse(localStorage.getItem('syllabi') || '[]');
+      const draftSyllabi = JSON.parse(localStorage.getItem('syllabus-drafts') || '[]');
+      
+      // Filter by current teacher
+      const teacherSyllabi = [...savedSyllabi, ...draftSyllabi].filter(
+        (syllabus: any) => syllabus.teacherId === user?.id
+      );
+
+      // Mock data for demo
+      const mockSyllabi: Syllabus[] = [
+        {
+          id: '1',
+          title: 'Kompyuter ilmlari asoslari',
+          courseCode: 'CS 101',
+          credits: 3,
+          status: 'approved',
+          teacherId: user?.id || '',
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: '2',
+          title: 'Ma\'lumotlar tuzilmasi va algoritmlar',
+          courseCode: 'CS 201',
+          credits: 4,
+          status: 'draft',
+          teacherId: user?.id || '',
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: '3',
+          title: 'Ma\'lumotlar bazasi boshqaruv tizimlari',
+          courseCode: 'CS 301',
+          credits: 3,
+          status: 'pending',
+          teacherId: user?.id || '',
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      const mockFaculty: Faculty = {
+        id: 'faculty-1',
+        name: 'Kompyuter ilmlari fakulteti',
+        description: 'Kompyuter ilmlari bo\'yicha ta\'lim va tadqiqot',
+      };
+
+      const mockDepartment: Department = {
+        id: 'dept-1',
+        name: 'Kompyuter ilmlari kafedrasi',
+        description: 'Ilg\'or kompyuter ilmlari ta\'limi',
+        departmentHead: {
+          name: 'Dr. Jamshid Karimov'
+        },
+        facultyCount: 25,
+      };
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Combine saved and mock data
+      const allSyllabi = [...teacherSyllabi, ...mockSyllabi];
+      setSyllabi(allSyllabi);
+      setFacultyInfo(mockFaculty);
+      setDepartmentInfo(mockDepartment);
+
+    } catch (error) {
+      console.error("O'qituvchi ma'lumotlarini olishda xatolik:", error);
+      setError("Dashboard ma'lumotlarini yuklashda xatolik. Iltimos, qayta urinib ko'ring.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "approved":
-        return "default"
-      case "pending":
-        return "secondary"
-      case "revision_needed":
-        return "destructive"
-      case "draft":
-        return "outline"
+      case 'approved':
+        return 'default';
+      case 'pending':
+        return 'secondary';
+      case 'rejected':
+        return 'destructive';
+      case 'draft':
+        return 'outline';
       default:
-        return "secondary"
+        return 'outline';
     }
-  }
+  };
 
-  const getStatusLabel = (status: string) => {
+  const getStatusText = (status: string) => {
     switch (status) {
-      case "approved":
-        return "Approved"
-      case "pending":
-        return "Pending Review"
-      case "revision_needed":
-        return "Revision Needed"
-      case "draft":
-        return "Draft"
+      case 'approved':
+        return 'Tasdiqlangan';
+      case 'pending':
+        return 'Ko\'rib chiqilmoqda';
+      case 'rejected':
+        return 'Rad etilgan';
+      case 'draft':
+        return 'Qoralama';
       default:
-        return status
+        return status;
     }
-  }
+  };
 
-  if (editingSyllabus) {
-    return (
-      <SyllabusEditor
-        syllabusId={editingSyllabus}
-        onBack={() => setEditingSyllabus(null)}
-        onSave={() => {
-          setEditingSyllabus(null)
-          // Refresh syllabi list
-        }}
-      />
-    )
-  }
+  const handleCreateSyllabus = () => {
+    router.push('/dashboard/teacher/create-syllabus');
+  };
+
+  const handleViewSyllabus = (syllabusId: string) => {
+    router.push(`/dashboard/teacher/syllabus/${syllabusId}`);
+  };
+
+  const handleEditSyllabus = (syllabusId: string) => {
+    router.push(`/dashboard/teacher/syllabus/${syllabusId}/edit`);
+  };
+
+  const handleSubmitForReview = async (syllabusId: string) => {
+    try {
+      // Update status to pending
+      const drafts = JSON.parse(localStorage.getItem('syllabus-drafts') || '[]');
+      const syllabi = JSON.parse(localStorage.getItem('syllabi') || '[]');
+      
+      // Find the draft and move it to syllabi with pending status
+      const draftIndex = drafts.findIndex((d: any) => d.id === syllabusId);
+      if (draftIndex !== -1) {
+        const draft = drafts[draftIndex];
+        draft.status = 'pending';
+        draft.updatedAt = new Date().toISOString();
+        
+        // Move from drafts to syllabi
+        drafts.splice(draftIndex, 1);
+        syllabi.push(draft);
+        
+        localStorage.setItem('syllabus-drafts', JSON.stringify(drafts));
+        localStorage.setItem('syllabi', JSON.stringify(syllabi));
+        
+        // Update local state
+        setSyllabi(prev => prev.map(s => 
+          s.id === syllabusId 
+            ? { ...s, status: 'pending' as const, updatedAt: new Date().toISOString() }
+            : s
+        ));
+        
+        toast({
+          title: "Ko'rib chiqishga yuborildi",
+          description: "O'quv dasturi muvaffaqiyatli ko'rib chiqishga yuborildi.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Xatolik",
+        description: "O'quv dasturini yuborishda xatolik yuz berdi.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const renderSyllabusCard = (syllabus: Syllabus) => (
+    <Card key={syllabus.id}>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-base">{syllabus.title}</CardTitle>
+            <CardDescription>
+              {syllabus.courseCode} • {syllabus.credits} kredit
+            </CardDescription>
+            <div className="mt-2 flex items-center space-x-4 text-sm text-muted-foreground">
+              <span className="flex items-center">
+                <Clock className="mr-1 h-3 w-3" />
+                Oxirgi yangilanish: {new Date(syllabus.updatedAt).toLocaleDateString('uz-UZ')}
+              </span>
+            </div>
+          </div>
+          <Badge variant={getStatusColor(syllabus.status)} className="capitalize">
+            {getStatusText(syllabus.status)}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleEditSyllabus(syllabus.id)}
+          >
+            <Edit className="mr-2 h-4 w-4" />
+            Tahrirlash
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleViewSyllabus(syllabus.id)}
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            Batafsil ko'rish
+          </Button>
+          {syllabus.status === "draft" && (
+            <Button 
+              size="sm"
+              onClick={() => handleSubmitForReview(syllabus.id)}
+            >
+              Ko'rib chiqishga yuborish
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Dashboard ma'lumotlari yuklanmoqda...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-4" />
+            <p className="text-destructive font-medium">{error}</p>
+            <Button 
+              variant="outline" 
+              className="mt-4" 
+              onClick={fetchTeacherData}
+            >
+              Qayta urinib ko'rish
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case "syllabi":
         return (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold">My Syllabi</h3>
-              <Button onClick={() => setEditingSyllabus("new")}>
+              <div>
+                <h3 className="text-lg font-semibold">Mening o'quv dasturlarim</h3>
+                <p className="text-muted-foreground">
+                  Kafedra: {departmentInfo?.name || 'Tayinlanmagan'} | Fakultet: {facultyInfo?.name || 'Tayinlanmagan'}
+                </p>
+              </div>
+              <Button onClick={handleCreateSyllabus}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create New Syllabus
+                Yangi o'quv dasturi yaratish
               </Button>
             </div>
 
-            <div className="grid gap-4">
-              {syllabi.map((syllabus) => (
-                <Card key={syllabus.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-base">{syllabus.course}</CardTitle>
-                        <CardDescription>
-                          Version {syllabus.version} • Last modified {syllabus.lastModified}
-                        </CardDescription>
-                      </div>
-                      <Badge variant={getStatusColor(syllabus.status)}>{getStatusLabel(syllabus.status)}</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => setEditingSyllabus(syllabus.id)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Upload className="mr-2 h-4 w-4" />
-                        Submit for Review
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            {syllabi.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">O'quv dasturlari topilmadi</h3>
+                  <p className="text-muted-foreground text-center mb-4">
+                    Siz hali hech qanday o'quv dasturi yaratmagansiz. Birinchi o'quv dasturingizni yaratish bilan boshlang.
+                  </p>
+                  <Button onClick={handleCreateSyllabus}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Birinchi o'quv dasturingizni yarating
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {syllabi.map(renderSyllabusCard)}
+              </div>
+            )}
           </div>
-        )
+        );
 
-      case "templates":
-        return <SyllabusTemplates onSelectTemplate={(templateId) => setEditingSyllabus(`template-${templateId}`)} />
-
-      default:
+      case "department":
         return (
           <div className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {stats.map((stat) => (
-                <Card key={stat.title}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                    <stat.icon className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <p className="text-xs text-muted-foreground">{stat.change} this month</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
+            <h3 className="text-lg font-semibold">Kafedra ma'lumotlari</h3>
+            {departmentInfo ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Your latest syllabus activities</CardDescription>
+                  <CardTitle>{departmentInfo.name}</CardTitle>
+                  <CardDescription>{departmentInfo.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm">CS 301 syllabus needs revision</p>
-                        <p className="text-xs text-muted-foreground">2 hours ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm">CS 201 syllabus submitted for review</p>
-                        <p className="text-xs text-muted-foreground">1 day ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <p className="text-sm">CS 101 syllabus approved</p>
-                        <p className="text-xs text-muted-foreground">3 days ago</p>
-                      </div>
-                    </div>
+                  <div className="space-y-2">
+                    <p>
+                      <strong>Fakultet:</strong> {facultyInfo?.name || 'Tayinlanmagan'}
+                    </p>
+                    <p>
+                      <strong>Kafedra mudiri:</strong> {departmentInfo.departmentHead?.name || "Tayinlanmagan"}
+                    </p>
+                    <p>
+                      <strong>Jami o'qituvchilar:</strong> {departmentInfo.facultyCount || 0}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
-
+            ) : (
               <Card>
-                <CardHeader>
-                  <CardTitle>Upcoming Deadlines</CardTitle>
-                  <CardDescription>Important dates and reminders</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm font-medium">Spring 2024 Syllabus Deadline</p>
-                        <p className="text-xs text-muted-foreground">All syllabi must be submitted</p>
-                      </div>
-                      <Badge variant="destructive">2 days</Badge>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm font-medium">Faculty Meeting</p>
-                        <p className="text-xs text-muted-foreground">Department curriculum review</p>
-                      </div>
-                      <Badge variant="secondary">1 week</Badge>
-                    </div>
-                  </div>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium mb-2">Kafedra ma'lumotlari yo'q</h3>
+                  <p className="text-muted-foreground text-center">
+                    Siz hozircha hech qaysi kafedraga tayinlanmagansiz. Iltimos, administratoringiz bilan bog'laning.
+                  </p>
                 </CardContent>
               </Card>
-            </div>
+            )}
           </div>
-        )
+        );
+
+      default:
+        return null;
     }
+  };
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Foydalanuvchi ma'lumotlari yuklanmoqda...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <DashboardLayout
-      title="Teacher Dashboard"
-      subtitle="Manage your course syllabi and submissions"
+      title={`Xush kelibsiz, ${user.name}`}
+      subtitle="O'qituvchi boshqaruv paneli"
       tabs={[
-        { id: "overview", label: "Overview", icon: FileText },
-        { id: "syllabi", label: "My Syllabi", icon: FileText },
-        { id: "templates", label: "Templates", icon: FileText },
+        { id: "syllabi", label: "Mening o'quv dasturlarim", icon: BookOpen },
+        { id: "department", label: "Kafedra", icon: Building2 },
       ]}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
       {renderContent()}
     </DashboardLayout>
-  )
+  );
 }

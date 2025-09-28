@@ -1,184 +1,182 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-
-export interface User {
-  id: string
-  email: string
-  name: string
-  role: "admin" | "teacher" | "department_head" | "dean" | "rector"
-  campus?: string
-  department?: string
-  createdAt: string
-  password?: string // Added password field for admin user creation
-}
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { User } from '@/lib/types';
+import { getDefaultRoute } from '@/lib/auth-utils';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
-  user: User | null
-  login: (email: string, password: string) => Promise<boolean>
-  logout: () => void
-  isLoading: boolean
-  createUser: (userData: Omit<User, "id" | "createdAt">) => Promise<boolean> // Added createUser function
-  updateUser: (id: string, userData: Partial<User>) => Promise<boolean> // Added updateUser function
-  deleteUser: (id: string) => Promise<boolean> // Added deleteUser function
-  getAllUsers: () => User[] // Added getAllUsers function
+  user: User | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => void;
+  isLoading: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const mockUsers: User[] = [
-  {
-    id: "1",
-    email: "admin@universitet.uz",
-    name: "Tizim Administratori",
-    role: "admin",
-    password: "admin123",
-    createdAt: new Date().toISOString(),
+// Demo foydalanuvchilar
+const defaultMockUsers: Record<string, { user: User; password: string }> = {
+  'admin@universitet.uz': {
+    user: {
+      id: '1',
+      email: 'admin@universitet.uz',
+      name: 'Tizim administratori',
+      role: 'admin',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    password: 'admin123'
   },
-  {
-    id: "2",
-    email: "o.usmonov@universitet.uz",
-    name: "Dr. Oybek Usmonov",
-    role: "teacher",
-    department: "Kompyuter Fanlari",
-    campus: "Asosiy Kampus",
-    password: "teacher123",
-    createdAt: new Date().toISOString(),
+  'o.usmonov@universitet.uz': {
+    user: {
+      id: '2',
+      email: 'o.usmonov@universitet.uz',
+      name: 'Oybek Usmonov',
+      role: 'teacher',
+      campusId: 'campus-1',
+      facultyId: 'faculty-1',
+      departmentId: 'dept-1',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    password: 'teacher123'
   },
-  {
-    id: "3",
-    email: "n.karimova@universitet.uz",
-    name: "Prof. Nilufar Karimova",
-    role: "department_head",
-    department: "Kompyuter Fanlari",
-    campus: "Asosiy Kampus",
-    password: "head123",
-    createdAt: new Date().toISOString(),
+  'n.karimova@universitet.uz': {
+    user: {
+      id: '3',
+      email: 'n.karimova@universitet.uz',
+      name: 'Nilufar Karimova',
+      role: 'department_head',
+      campusId: 'campus-1',
+      facultyId: 'faculty-1',
+      departmentId: 'dept-1',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    password: 'head123'
   },
-  {
-    id: "4",
-    email: "a.toshmatov@universitet.uz",
-    name: "Dr. Akmal Toshmatov",
-    role: "dean",
-    department: "Muhandislik",
-    campus: "Asosiy Kampus",
-    password: "dean123",
-    createdAt: new Date().toISOString(),
+  'a.toshmatov@universitet.uz': {
+    user: {
+      id: '4',
+      email: 'a.toshmatov@universitet.uz',
+      name: 'Akmal Toshmatov',
+      role: 'dean',
+      campusId: 'campus-1',
+      facultyId: 'faculty-1',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    password: 'dean123'
   },
-  {
-    id: "5",
-    email: "m.rahimova@universitet.uz",
-    name: "Prof. Malika Rahimova",
-    role: "rector",
-    campus: "Asosiy Kampus",
-    password: "rector123",
-    createdAt: new Date().toISOString(),
-  },
-]
-
-let users = [...mockUsers] // Make users mutable for CRUD operations
+  'm.rahimova@universitet.uz': {
+    user: {
+      id: '5',
+      email: 'm.rahimova@universitet.uz',
+      name: 'Muharram Rahimova',
+      role: 'rector',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    password: 'rector123'
+  }
+};
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem("university_user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    // Agar foydalanuvchilar mavjud bo'lmasa, standartlarini yaratish
+    const existingAuthUsers = localStorage.getItem('auth-users');
+    if (!existingAuthUsers) {
+      localStorage.setItem('auth-users', JSON.stringify(defaultMockUsers));
     }
-    setIsLoading(false)
-  }, [])
+
+    // Mavjud seansni tekshirish
+    const checkAuth = () => {
+      try {
+        const token = localStorage.getItem('auth-token');
+        const userData = localStorage.getItem('user-data');
+        
+        if (token && userData) {
+          const parsedUser = JSON.parse(userData) as User;
+          setUser(parsedUser);
+        }
+      } catch (error) {
+        console.error('Auth tekshiruvida xatolik:', error);
+        localStorage.removeItem('auth-token');
+        localStorage.removeItem('user-data');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    const foundUser = users.find((u) => u.email === email)
+    setIsLoading(true);
+    
+    try {
+      // API kechikishini simulyatsiya qilish
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Barcha foydalanuvchilarni olish (standart + admin tomonidan yaratilgan)
+      const authUsers = JSON.parse(localStorage.getItem('auth-users') || '{}');
+      
+      // Kirish ma'lumotlarini tekshirish
+      const userRecord = authUsers[email];
+      
+      if (!userRecord || userRecord.password !== password) {
+        return false;
+      }
 
-    if (foundUser && foundUser.password === password) {
-      const userWithoutPassword = { ...foundUser }
-      delete userWithoutPassword.password
-      setUser(userWithoutPassword)
-      localStorage.setItem("university_user", JSON.stringify(userWithoutPassword))
-      return true
+      // Mock token yaratish
+      const token = `mock-token-${Date.now()}`;
+      
+      // Foydalanuvchi ma'lumotlarini saqlash
+      localStorage.setItem('auth-token', token);
+      localStorage.setItem('user-data', JSON.stringify(userRecord.user));
+      
+      setUser(userRecord.user);
+      
+      // Rolga mos boshqaruv paneliga yo'naltirish
+      const defaultRoute = getDefaultRoute(userRecord.user);
+      router.push(defaultRoute);
+      
+      return true;
+    } catch (error) {
+      console.error('Kirishda xatolik:', error);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-
-    return false
-  }
+  };
 
   const logout = () => {
-    setUser(null)
-    localStorage.removeItem("university_user")
-  }
-
-  const createUser = async (userData: Omit<User, "id" | "createdAt">): Promise<boolean> => {
-    try {
-      const newUser: User = {
-        ...userData,
-        id: (users.length + 1).toString(),
-        createdAt: new Date().toISOString(),
-      }
-      users.push(newUser)
-      localStorage.setItem("university_users", JSON.stringify(users))
-      return true
-    } catch (error) {
-      return false
-    }
-  }
-
-  const updateUser = async (id: string, userData: Partial<User>): Promise<boolean> => {
-    try {
-      const userIndex = users.findIndex((u) => u.id === id)
-      if (userIndex !== -1) {
-        users[userIndex] = { ...users[userIndex], ...userData }
-        localStorage.setItem("university_users", JSON.stringify(users))
-        return true
-      }
-      return false
-    } catch (error) {
-      return false
-    }
-  }
-
-  const deleteUser = async (id: string): Promise<boolean> => {
-    try {
-      users = users.filter((u) => u.id !== id)
-      localStorage.setItem("university_users", JSON.stringify(users))
-      return true
-    } catch (error) {
-      return false
-    }
-  }
-
-  const getAllUsers = (): User[] => {
-    return users.map((user) => {
-      const userWithoutPassword = { ...user }
-      delete userWithoutPassword.password
-      return userWithoutPassword
-    })
-  }
+    localStorage.removeItem('auth-token');
+    localStorage.removeItem('user-data');
+    setUser(null);
+    router.push('/');
+  };
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        login,
-        logout,
-        isLoading,
-        createUser,
-        updateUser,
-        deleteUser,
-        getAllUsers,
-      }}
-    >
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext)
+export const useAuth = () => {
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error('useAuth AuthProvider ichida ishlatilishi kerak');
   }
-  return context
-}
+  return context;
+};

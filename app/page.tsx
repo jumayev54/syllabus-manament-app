@@ -1,40 +1,39 @@
 "use client";
-import { LoginForm } from "@/components/auth/login-form";
-import { AdminDashboard } from "@/components/dashboards/admin-dashboard";
-import { TeacherDashboard } from "@/components/dashboards/teacher-dashboard";
-import { DepartmentHeadDashboard } from "@/components/dashboards/department-head-dashboard";
-import { DeanDashboard } from "@/components/dashboards/dean-dashboard";
-import { RectorDashboard } from "@/components/dashboards/rector-dashboard";
+
 import { useAuth } from "@/hooks/use-auth";
+import { LoginForm } from "@/components/auth/login-form";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { getDefaultRoute } from "@/lib/auth-utils";
 
 export default function HomePage() {
   const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      // Agar foydalanuvchi allaqachon kirgan bo'lsa, tegishli boshqaruv paneliga yo'naltirish
+      const defaultRoute = getDefaultRoute(user);
+      router.push(defaultRoute);
+    }
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Yuklanmoqda...</p>
+        </div>
       </div>
     );
   }
 
+  // Agar foydalanuvchi kirgan bo'lsa, ular useEffect orqali yo'naltiriladi
+  // Autentifikatsiya qilinmagan foydalanuvchilar uchun login formani ko'rsatish
   if (!user) {
     return <LoginForm />;
   }
 
-  // Render appropriate dashboard based on user role
-  switch (user.role) {
-    case "admin":
-      return <AdminDashboard />;
-    case "teacher":
-      return <TeacherDashboard />;
-    case "department_head":
-      return <DepartmentHeadDashboard />;
-    case "dean":
-      return <DeanDashboard />;
-    case "rector":
-      return <RectorDashboard />;
-    default:
-      return <LoginForm />;
-  }
+  return null; // Yo'naltirish paytida qisqa vaqtga ko'rsatiladi
 }
