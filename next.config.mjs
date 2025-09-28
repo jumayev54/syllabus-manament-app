@@ -1,15 +1,14 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig = {
-  output: "standalone",
-  trailingSlash: true, // Critical for GitHub Pages
+  output: "export",           // <-- changed
+  trailingSlash: true,
   images: {
     unoptimized: true,
   },
-  // Use your actual repository name
-  basePath:
-    process.env.NODE_ENV === "production" ? "/syllabus-manament-app" : "",
-  assetPrefix:
-    process.env.NODE_ENV === "production" ? "/syllabus-manament-app/" : "",
+  basePath: isProd ? "/syllabus-manament-app" : "",
+  assetPrefix: isProd ? "/syllabus-manament-app/" : "",
 };
 
 export default nextConfig;
