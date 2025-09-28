@@ -274,7 +274,7 @@ export function DepartmentHeadDashboard() {
     <>
       <DashboardLayout
         title="Department Head Dashboard"
-        subtitle={`${user?.department} Department Management`}
+        subtitle={`${user?.departmentId} Department Management`}
         tabs={[
           { id: "overview", label: "Overview", icon: FileText },
           { id: "approvals", label: "Pending Approvals", icon: Clock },
