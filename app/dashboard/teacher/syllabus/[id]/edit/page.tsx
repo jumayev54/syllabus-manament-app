@@ -1,18 +1,12 @@
+"use client";
 
 import { EditSyllabusForm } from "@/components/syllabus/edit-syllabus-form";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-// Required for static export
-export async function generateStaticParams() {
-  // Since this is a dynamic page that depends on user data,
-  // return an empty array - pages will be generated on demand
-  return [];
-}
-
 // Make the page dynamic
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface EditSyllabusPageProps {
   params: {
@@ -25,8 +19,8 @@ export default function EditSyllabusPage({ params }: EditSyllabusPageProps) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== 'teacher')) {
-      router.push('/');
+    if (!isLoading && (!user || user.role !== "teacher")) {
+      router.push("/");
     }
   }, [user, isLoading, router]);
 
@@ -41,7 +35,7 @@ export default function EditSyllabusPage({ params }: EditSyllabusPageProps) {
     );
   }
 
-  if (!user || user.role !== 'teacher') {
+  if (!user || user.role !== "teacher") {
     return null;
   }
 
