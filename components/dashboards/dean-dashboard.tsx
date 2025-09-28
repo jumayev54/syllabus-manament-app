@@ -200,7 +200,7 @@ export function DeanDashboard() {
   return (
     <DashboardLayout
       title="Dean Dashboard"
-      subtitle={`${user?.department} College Administration`}
+      subtitle={`${user?.departmentId} College Administration`}
       tabs={[
         { id: "overview", label: "Overview", icon: BarChart3 },
         { id: "departments", label: "Departments", icon: Building2 },
